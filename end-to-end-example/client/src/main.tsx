@@ -12,7 +12,7 @@
  * ANY KIND, either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-import React, { useEffect, useRef } from "react";
+import React, { ChangeEvent } from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css";
@@ -21,7 +21,7 @@ import {
   PasswordlessContextProvider,
   Passwordless as PasswordlessComponent,
   Fido2Toast,
-} from "../../../client/react";
+} from "amazon-cognito-passwordless-auth/react";
 import "amazon-cognito-passwordless-auth/passwordless.css";
 import "@cloudscape-design/global-styles/index.css";
 
@@ -39,16 +39,19 @@ Passwordless.configure({
   debug: console.debug,
 });
 
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(() => {
+ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(<Main />);
 
-  const inputRef = useRef<HTMLInputElement>(null);
+function Main() {
+  
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    console.log(event.target.value);
+  }
 
-  useEffect(() => {
-    if (inputRef.current && inputRef.current.value) {
-      console.log("inputRef.current", inputRef.current.value);
-    }
-  }, [inputRef.current?.value])
-
+  const handleSubmit = (event: ChangeEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    console.log("Form submit");
+  }
+  
   return (
     <PasswordlessContextProvider enableLocalUserCache={true}>
     <PasswordlessComponent
@@ -58,8 +61,9 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(() =>
         customerName: "Amazon Web Services",
         customerLogoUrl:
           "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Amazon_Web_Services_Logo.svg/1280px-Amazon_Web_Services_Logo.svg.png",
-      }} 
-      forwardRef={inputRef}
+      }}
+      onChange={handleChange}
+      onSubmit={handleSubmit}
     >
       <React.StrictMode>
         <App />
@@ -69,5 +73,3 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(() =>
   </PasswordlessContextProvider>
   )
 }
-
-);

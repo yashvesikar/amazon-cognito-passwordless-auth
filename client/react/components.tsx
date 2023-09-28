@@ -57,15 +57,15 @@ const FlexContainer = (props: {
   );
 };
 
-export const Passwordless = ({
-  brand,
-  children,
-  forwardRef
-}: {
+interface PasswordlessProps {
   brand?: CustomBrand;
   children?: React.ReactNode;
-  forwardRef?: React.ForwardedRef<HTMLInputElement>;
-}) => {
+  onChange?: React.ChangeEventHandler<HTMLInputElement>;
+  onSubmit?: React.FormEventHandler<HTMLFormElement>;
+}
+export const Passwordless = forwardRef<HTMLInputElement, PasswordlessProps>((props, ref) => {
+  const { brand, children, onChange, onSubmit } = props;
+  
   const {
     requestSignInLink,
     lastError,
@@ -94,6 +94,18 @@ export const Passwordless = ({
     }
   }, [lastSignedInUsers]);
 
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setNewUsername(e.target.value)
+    onChange && onChange(e);
+  }
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {    
+    e.preventDefault();
+    signInWithMagicLinkOrFido2(newUsername);
+    onSubmit && onSubmit(e);
+    return false;
+  }
+  
   function signInWithMagicLinkOrFido2(username: string) {
     requestSignInLink({ username }).signInLinkRequested.catch((err) => {
       if (
@@ -291,9 +303,7 @@ export const Passwordless = ({
               <form
                 className="passwordless-flex passwordless-flex-justify-end"
                 onSubmit={(e) => {
-                  e.preventDefault();
-                  signInWithMagicLinkOrFido2(newUsername);
-                  return false;
+                  handleSubmit(e);
                 }}
               >
                 <label className="passwordless-input-label">
@@ -302,11 +312,11 @@ export const Passwordless = ({
                 <input
                   className="passwordless-email-input"
                   value={newUsername}
-                  onChange={(e) => setNewUsername(e.target.value)}
+                  onChange={(e) => handleChange(e)}
                   placeholder="e-mail"
                   type="email"
                   disabled={busy}
-                  ref={forwardRef}
+                  ref={ref}
                   autoFocus
                 />
                 <button
@@ -338,9 +348,7 @@ export const Passwordless = ({
         <form
           className="passwordless-flex passwordless-flex-justify-end"
           onSubmit={(e) => {
-            e.preventDefault();
-            signInWithMagicLinkOrFido2(newUsername);
-            return false;
+            handleSubmit(e);
           }}
         >
           <label className="passwordless-input-label">
@@ -349,11 +357,11 @@ export const Passwordless = ({
           <input
             className="passwordless-email-input"
             value={newUsername}
-            onChange={(e) => setNewUsername(e.target.value)}
+            onChange={(e) => handleChange(e)}
             placeholder="E-mail"
             type="email"
             disabled={busy}
-            ref={forwardRef}
+            ref={ref}
             autoFocus
           />
           <button
@@ -423,7 +431,8 @@ export const Passwordless = ({
       </div>
     </FlexContainer>
   );
-};
+});
+Passwordless.displayName = 'Passwordless';
 
 function Fido2Recommendation() {
   const { fido2CreateCredential, showAuthenticatorManager, signInStatus } =
