@@ -13,7 +13,7 @@
  * language governing permissions and limitations under the License.
  */
 import { configure } from "../config.js";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, forwardRef } from "react";
 import {
   usePasswordless,
   useAwaitableState,
@@ -60,9 +60,11 @@ const FlexContainer = (props: {
 export const Passwordless = ({
   brand,
   children,
+  forwardRef
 }: {
   brand?: CustomBrand;
   children?: React.ReactNode;
+  forwardRef?: React.ForwardedRef<HTMLInputElement>;
 }) => {
   const {
     requestSignInLink,
@@ -304,6 +306,7 @@ export const Passwordless = ({
                   placeholder="e-mail"
                   type="email"
                   disabled={busy}
+                  ref={forwardRef}
                   autoFocus
                 />
                 <button
@@ -350,6 +353,7 @@ export const Passwordless = ({
             placeholder="E-mail"
             type="email"
             disabled={busy}
+            ref={forwardRef}
             autoFocus
           />
           <button

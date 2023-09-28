@@ -12,7 +12,7 @@
  * ANY KIND, either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css";
@@ -21,7 +21,7 @@ import {
   PasswordlessContextProvider,
   Passwordless as PasswordlessComponent,
   Fido2Toast,
-} from "amazon-cognito-passwordless-auth/react";
+} from "../../../client/react";
 import "amazon-cognito-passwordless-auth/passwordless.css";
 import "@cloudscape-design/global-styles/index.css";
 
@@ -39,8 +39,18 @@ Passwordless.configure({
   debug: console.debug,
 });
 
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <PasswordlessContextProvider enableLocalUserCache={true}>
+ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(() => {
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current && inputRef.current.value) {
+      console.log("inputRef.current", inputRef.current.value);
+    }
+  }, [inputRef.current?.value])
+
+  return (
+    <PasswordlessContextProvider enableLocalUserCache={true}>
     <PasswordlessComponent
       brand={{
         backgroundImageUrl:
@@ -48,7 +58,8 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
         customerName: "Amazon Web Services",
         customerLogoUrl:
           "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Amazon_Web_Services_Logo.svg/1280px-Amazon_Web_Services_Logo.svg.png",
-      }}
+      }} 
+      forwardRef={inputRef}
     >
       <React.StrictMode>
         <App />
@@ -56,4 +67,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     </PasswordlessComponent>
     <Fido2Toast /> {/* Add Fido2Toast below App so it is rendered on top */}
   </PasswordlessContextProvider>
+  )
+}
+
 );
